@@ -43,7 +43,6 @@ gg_miss_fct(pozyczki, fct = Credit_History)
 
 #poprawianie błędów
 pozyczki[localizeErrors(reguly, pozyczki$LoanAmount)] <-NA
-
 Karolina Popiołek
 # instalujemy pakiety
 library(tidyverse)
