@@ -43,7 +43,12 @@ gg_miss_fct(pozyczki, fct = Credit_History)
 
 #poprawianie błędów
 pozyczki[localizeErrors(reguly, pozyczki$LoanAmount)] <-NA
-Karolina Popiołek
+
+pozyczki$LoanAmount[localizeErrors(reguly, pozyczki$LoanAmount)] <- NA
+
+pozyczki$LoanAmount[localizeErrors(reguly, pozyczki)] <- NA
+
+
 # instalujemy pakiety
 library(tidyverse)
 library(dlookr)
@@ -51,11 +56,7 @@ library(editrules)
 library(validate)
 attach(pozyczki)
 
-# reguły
-#jesli jest dochod w coapplicant to musi byc married
-#loand statusn a loan amount - zaleznosc jakas spytac siem
-
-#REGUŁY PRAWIDŁOWE
+#REGUŁY
 reguly <- editset(c(
   "LoanAmount > 0",
   "ApplicantIncome >= 0",
@@ -97,4 +98,5 @@ imputate_na (pozyczki, method = "median")
 
 
 #imputacja brakow danych
+czyste_dane <- hotdeck(pozyczki)
 
