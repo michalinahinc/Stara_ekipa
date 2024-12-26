@@ -2,11 +2,22 @@
 title: "Analiza danych - projekt"
 author: "Nikola Chrzonowska, Karolina Popiołek, Michalina Hinc"
 date: "2024-12-08"
-output: html_document
+output:
+  rmdformats::readthedown:
+    self_contained: true
+    thumbnails: true
+    lightbox: true
+    gallery: false
+    highlight: tango
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(
+	message = FALSE,
+	warning = FALSE,
+	include = FALSE,
+	library(rmdformats)
+)
 ```
 
 ## 1. Wprowadzenie i cel projektu
@@ -22,6 +33,7 @@ Dane, na których pracujemy obejmują: płeć, stan cywilny,liczba osób na utrz
 ### 2.1. Ładowanie potrzebnych pakietów i danych
 
 Naszym pierwszym krokiem będizie...
+
 ```{r ładowanie pakietów}
 library(tidyverse)
 library(dlookr)
@@ -64,65 +76,33 @@ gg_miss_fct(pozyczki, fct = Credit_History)
 ```
 
 #poprawianie błędów pozyczki
+
 ```{r}
 localizeErrors(reguly, pozyczki$LoanAmount) <- NA
 ```
 
-#poprawianie błędów:
-pozyczki[localizeErrors(reguly, pozyczki$LoanAmount)] <-NA
+#poprawianie błędów: pozyczki[localizeErrors(reguly, pozyczki\$LoanAmount)] \<-NA
 
-pozyczki$LoanAmount[localizeErrors(reguly, pozyczki$LoanAmount)] <- NA
+pozyczki$LoanAmount[localizeErrors(reguly, pozyczki$LoanAmount)] \<- NA
 
-pozyczki$LoanAmount[localizeErrors(reguly, pozyczki)] <- NA
-
+pozyczki\$LoanAmount[localizeErrors(reguly, pozyczki)] \<- NA
 
 # instalujemy pakiety
-library(tidyverse)
-library(dlookr)
-library(editrules)
-library(validate)
-attach(pozyczki)
 
-#REGUŁY
-reguly <- editset(c(
-  "LoanAmount > 0",
-  "ApplicantIncome >= 0",
-  "CoapplicantIncome >= 0",
-  "Education %in% c('Graduate', 'Not Graduate')",
-  "Property_Area %in% c('Urban', 'Semiurban', 'Rural')"
-))
+library(tidyverse) library(dlookr) library(editrules) library(validate) attach(pozyczki)
+
+#REGUŁY reguly \<- editset(c( "LoanAmount \> 0", "ApplicantIncome \>= 0", "CoapplicantIncome \>= 0", "Education %in% c('Graduate', 'Not Graduate')", "Property_Area %in% c('Urban', 'Semiurban', 'Rural')" ))
 
 # walidacja
-bledy <- violatedEdits(reguly, pozyczki)
+
+bledy \<- violatedEdits(reguly, pozyczki)
 
 # Poprawa marginesów lub użycie nowego okna graficznego
-par(mar = c(5, 4, 2, 1)) # Opcjonalnie zmniejszenie marginesów
-plot(bledy)
 
-#imputacja
-library(dplyr) # ładuję biblioteki
-library(ggplot2)
-library(rmdformats)
-library(validate)
-library(validatetools)
-library(dcmodify)
-library(errorlocate)
-library(deductive)
-library(VIM)
-library(simputation)
-library(lumberjack)
-library(ISLR) 
-library(dlookr)
-library(xts)
-library(quantmod)
-library(ROCR)
-library(DMwR)
-library(Information)
-library(scorecard)
+par(mar = c(5, 4, 2, 1)) \# Opcjonalnie zmniejszenie marginesów plot(bledy)
 
-find_na(pozyczki)
-imputate_na (pozyczki, method = "median")
+#imputacja library(dplyr) \# ładuję biblioteki library(ggplot2) library(rmdformats) library(validate) library(validatetools) library(dcmodify) library(errorlocate) library(deductive) library(VIM) library(simputation) library(lumberjack) library(ISLR) library(dlookr) library(xts) library(quantmod) library(ROCR) library(DMwR) library(Information) library(scorecard)
 
+find_na(pozyczki) imputate_na (pozyczki, method = "median")
 
-#imputacja brakow danych
-czyste_dane <- hotdeck(pozyczki)
+#imputacja brakow danych czyste_dane \<- hotdeck(pozyczki)
