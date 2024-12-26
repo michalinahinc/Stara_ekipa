@@ -1,5 +1,5 @@
 ---
-title: "Przygotowanie danych"
+title: "Analiza danych - projekt"
 author: "Nikola Chrzonowska, Karolina Popiołek, Michalina Hinc"
 date: "2024-12-08"
 output: html_document
