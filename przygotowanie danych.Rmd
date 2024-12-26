@@ -92,7 +92,7 @@ gg_miss_fct(pozyczki, fct = Credit_History)
 
 Kolejnym krokiem jest walidacja danych. Sprawdzamy, czy dane spełniają nasze założenia.Wykorzystujemy do tego pakiet "validate".
 
-```{r reguły}
+```{r reguły, warning=FALSE}
 library(validate)
 # Podgląd danych
 glimpse(pozyczki)
@@ -124,6 +124,11 @@ View(niespelnione)
 
 ```
 
+```{r wizualizacja, warning=FALSE}
+cf <- confront(pozyczki, rules, key="Loan_ID")
+summary(cf)
+barplot(cf, main="Wizualizacja błędów i braków danych")
+```
 W przypadku zmiennej "Gender", mamy 13 błędów, zmiennej "Married" mamy 3 błędy, zmiennej "Dependents" - 15 błędów, zmiennej "Self_Employed" - 32 błędy. Ponadto w przypadku zmiennej "LoanAmount" mamy 22 braków danych, zmiennej "Loan_Amount_Term" 14 braków danych, a w przypadku zmiennej "Credit_History" - 50 braków danych.
 
 # To musimy sprawdzić, bo wcześniej nam wyszło 149 NA, a mi teraz nie wiem czmeu 86
