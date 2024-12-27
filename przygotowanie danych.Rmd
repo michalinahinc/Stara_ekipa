@@ -133,6 +133,45 @@ barplot(cf, main="Wizualizacja błędów i braków danych")
 W przypadku zmiennej "Gender" znajduje się 13 braków danych, zmiennej "Married" - 3, zmiennej "Dependents" - 15, zmiennej "Self_Employed" - 32, zmiennej "LoanAmount" - 22, zmiennej "Loan_Amount_Term" - 14, a w przypadku zmiennej "Credit_History" znajduje się 50 braków danych.
 
 
+### 2.3. Imputacja braków danych
+
+```{r}
+#imputacja testowe  (nie wiem czy dziala - nie odpalałam, bo nie chce zepsuc danych)
+
+# zdefiniowanie funkcji dominanty
+Mode <- function(x, na.rm = FALSE) {
+  uniqx <- unique(x)
+  uniqx[which.max(tabulate(match(x, uniqx)))]
+}
+
+# imputacja dominantą zmiennych kategorycznych
+pozyczki$Gender <- ifelse(is.na(pozyczki$Gender), 
+                          Mode(pozyczki$Gender, na.rm = TRUE), 
+                          pozyczki$Gender)
+
+pozyczki$Married <- ifelse(is.na(pozyczki$Married), 
+                           Mode(pozyczki$Married, na.rm = TRUE), 
+                           pozyczki$Married)
+
+pozyczki$Dependents <- ifelse(is.na(pozyczki$Dependents), 
+                               Mode(pozyczki$Dependents, na.rm = TRUE), 
+                               pozyczki$Dependents)
+
+pozyczki$Self_Employed <- ifelse(is.na(pozyczki$Self_Employed), 
+                                  Mode(pozyczki$Self_Employed, na.rm = TRUE), 
+                                  pozyczki$Self_Employed)
+
+pozyczki$Credit_History <- ifelse(is.na(pozyczki$Credit_History), 
+                                   Mode(pozyczki$Credit_History, na.rm = TRUE), 
+                                   pozyczki$Credit_History)
+
+# imputacja medianą zmiennych numerycznych (mediana jest odporniejsza na wwartości odstające)
+pozyczki$LoanAmount <- imputate_na(pozyczki, LoanAmount, method = "median")
+pozyczki$Loan_Amount_Term <- imputate_na(pozyczki, Loan_Amount_Term, method = "median")
+
+```
+
+
 ```{r}
 
 # to nie działa
