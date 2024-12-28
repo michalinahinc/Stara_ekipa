@@ -85,6 +85,13 @@ gg_miss_fct(pozyczki, fct = Education)
 gg_miss_fct(pozyczki, fct = Credit_History)
 
 #Naszym zdaniem zmienna Education prezentuje największe rozbieżności pomiędzy brakami danych.
+
+# Wizualizacja braków danych względem decyzji o przyznaniu pożyczki
+
+# Wizualizacja braków danych względem loan_status
+gg_miss_fct(pozyczki, fct = Loan_Status) +
+  labs(title = "Procent braków danych według decyzji o udzieleniu pożyczki", x = "Decyzja odnośnie udzielenia pożyczki", y = "% braków danych")
+
 ```
 
 ### 2.2. Walidacja danych
