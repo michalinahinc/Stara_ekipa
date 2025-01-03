@@ -79,10 +79,14 @@ vis_miss(pozyczki)
 vis_miss(pozyczki, sort_miss=TRUE) #sortowanie
 
 #mapa
-gg_miss_fct(pozyczki, fct = Self_Employed)
-gg_miss_fct(pozyczki, fct = Married)
-gg_miss_fct(pozyczki, fct = Education)
-gg_miss_fct(pozyczki, fct = Credit_History)
+gg_miss_fct(pozyczki, fct = Self_Employed) +
+  scale_fill_distiller(direction = 1, palette = "GnBu")
+gg_miss_fct(pozyczki, fct = Married) +
+  scale_fill_distiller(direction = 1, palette = "GnBu")
+gg_miss_fct(pozyczki, fct = Education) +
+  scale_fill_distiller(direction = 1, palette = "GnBu")
+gg_miss_fct(pozyczki, fct = Credit_History) +
+  scale_fill_distiller(direction = 1, palette = "GnBu")
 
 #Naszym zdaniem zmienna Education prezentuje największe rozbieżności pomiędzy brakami danych.
 
@@ -143,16 +147,26 @@ W przypadku zmiennej "Gender" znajduje się 13 braków danych, zmiennej "Married
 
 ### 2.3. Imputacja braków danych
 
-```{r}
 #imputacja testowe  (nie wiem czy dziala - nie odpalałam, bo nie chce zepsuc danych)
+# update: działa
 
-# zdefiniowanie funkcji dominanty
+
+W celu uzupełnienia braków danych wykorzystujemy metodę imputacji. Dla zmiennych "Gender" i "Married" zastosujemy metodę imputacji dominantą.
+
+Na początku przystępujemy do zdefiniowania funkcji dominanty.
+
+```{r zdefiniowanie funkcji dominanty}
 Mode <- function(x, na.rm = FALSE) {
   uniqx <- unique(x)
   uniqx[which.max(tabulate(match(x, uniqx)))]
 }
+```
 
-# imputacja dominantą zmiennych kategorycznych
+Następnie przechodzimy do imputacji braków danych.
+
+```{r imputacja zmiennych "Gender" i "Married"}
+
+# imputacja dominantą
 pozyczki$Gender <- ifelse(is.na(pozyczki$Gender), 
                           Mode(pozyczki$Gender, na.rm = TRUE), 
                           pozyczki$Gender)
@@ -160,22 +174,34 @@ pozyczki$Gender <- ifelse(is.na(pozyczki$Gender),
 pozyczki$Married <- ifelse(is.na(pozyczki$Married), 
                            Mode(pozyczki$Married, na.rm = TRUE), 
                            pozyczki$Married)
+```
 
-pozyczki$Dependents <- ifelse(is.na(pozyczki$Dependents), 
-                               Mode(pozyczki$Dependents, na.rm = TRUE), 
-                               pozyczki$Dependents)
+Dla zmiennych "Dependents", "Self_Employed" i "Credit_History" wykorzystamy metodę hot-deck, która umożliwia imputację na podstawie podobnych obserwacji w zbiorze danych. 
 
-pozyczki$Self_Employed <- ifelse(is.na(pozyczki$Self_Employed), 
-                                  Mode(pozyczki$Self_Employed, na.rm = TRUE), 
-                                  pozyczki$Self_Employed)
+Liczba osób na utrzymaniu może być powiązana ze zmienną dotyczącą stanu cywilnego, informacja o prowadzeniu działalności gospodarczej z dochodem, zaś historia kredytowa od wartości pożyczki
 
-pozyczki$Credit_History <- ifelse(is.na(pozyczki$Credit_History), 
-                                   Mode(pozyczki$Credit_History, na.rm = TRUE), 
-                                   pozyczki$Credit_History)
+```{r imputacja zmiennych "Dependents", "Self_Employed" i "Credit_History"}
 
-# imputacja medianą zmiennych numerycznych (mediana jest odporniejsza na wwartości odstające)
-pozyczki$LoanAmount <- imputate_na(pozyczki, LoanAmount, method = "median")
-pozyczki$Loan_Amount_Term <- imputate_na(pozyczki, Loan_Amount_Term, method = "median")
+# imputacja metodą hot-deck
+pozyczki$Dependents <- hotdeck(pozyczki, variable = "Dependents")$Dependents
+
+pozyczki$Self_Employed <- hotdeck(pozyczki, variable = "Self_Employed", ord_var = "ApplicantIncome")$Self_Employed
+
+pozyczki$Credit_History <- hotdeck(pozyczki, variable = "Credit_History", ord_var = "LoanAmount")$Credit_History
+
+
+```
+Dla zmiennych numerycznych wykorzystujemy metodę imputacji medianą, ponieważ jest ona bardziej odporna na wartości odstające niż średnia.
+
+```{r imputacja zmiennych numerycznych}
+
+# imputacja medianą zmiennych numerycznych
+kwota_pozyczki <- pozyczki$LoanAmount <- imputate_na(pozyczki, LoanAmount, method = "median")
+okres_pozyczki <- pozyczki$Loan_Amount_Term <- imputate_na(pozyczki, Loan_Amount_Term, method = "median")
+
+# wizualizacja zamiany braków danych metodą mediany
+plot(kwota_pozyczki)
+plot(okres_pozyczki)
 
 ```
 
