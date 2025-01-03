@@ -90,7 +90,8 @@ gg_miss_fct(pozyczki, fct = Credit_History)
 
 # Wizualizacja braków danych względem loan_status
 gg_miss_fct(pozyczki, fct = Loan_Status) +
-  labs(title = "Procent braków danych według decyzji o udzieleniu pożyczki", x = "Decyzja odnośnie udzielenia pożyczki", y = "% braków danych")
+  labs(title = "Procent braków danych według decyzji o udzieleniu pożyczki", x = "Decyzja odnośnie udzielenia pożyczki", y = "% braków danych") +
+  scale_fill_distiller(direction = 1, palette = "GnBu")
 
 ```
 
