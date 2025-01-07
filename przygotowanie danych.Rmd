@@ -204,14 +204,75 @@ plot(kwota_pozyczki)
 plot(okres_pozyczki)
 
 ```
+### Wizualizacje
+
+2. Wykresy dwóch zmiennych ilościowych
+Dochód wnioskodawcy a kwota pożyczki
+
 
 
 ```{r}
-
-# to nie działa
-localizeErrors(rules, pozyczki$LoanAmount) <- NA
+ggplot(pozyczki, aes(x = ApplicantIncome, y = LoanAmount)) +
+  geom_point(aes(color = Credit_History)) +
+  geom_smooth(method = 'loess', se = FALSE) +
+  theme_minimal() +
+  labs(title = 'Dochód vs Kwota pożyczki', x = 'Dochód wnioskodawcy', y = 'Kwota pożyczki') +
+  theme(legend.position = c(0.8, 0.2))
 
 ```
+
+Związek stanu cywilnego z historią kredytową
+
+```{r}
+pozyczki %>%
+  filter(!is.na(Dependents)) %>%  # Usuwamy brakujące dane dla Dependents
+  ggplot(aes(x = Married, y = Dependents)) +
+  geom_jitter(aes(color = Dependents), width = 0.2, size = 3, alpha = 0.6) +
+  theme_minimal() +
+  scale_color_brewer(palette = 'Set1') +  # Paleta kolorów
+  labs(title = 'Stan cywilny a liczba osób w gospodarstwie domowym',
+       x = 'Stan cywilny',
+       y = 'Liczba osób w gospodarstwie domowym') +
+  theme(legend.position = 'right')  # Ustawienie legendy
+```
+
+
+```{r}
+if(!require('ggrepel')) install.packages('ggrepel')
+library(ggrepel)
+
+ggplot(pozyczki, aes(x = ApplicantIncome, y = LoanAmount, size = CoapplicantIncome, color = Loan_Status)) +
+  geom_point(alpha = 0.6) +
+  scale_color_manual(values = c('green', 'red')) +
+  theme_minimal() +
+  labs(title = 'Dochód a kwota pożyczki', x = 'Dochód wnioskodawcy', y = 'Kwota pożyczki') +
+  theme(legend.position = 'right')
+```
+
+
+
+```{r}
+medians <- pozyczki %>%
+  group_by(Property_Area) %>%
+  summarize(m = median(LoanAmount, na.rm = TRUE))
+
+ggplot(pozyczki, aes(x = Property_Area, y = LoanAmount)) +
+  geom_boxplot(aes(fill = Property_Area), outlier.alpha = 0.25) +
+  geom_text(data = medians, aes(x = Property_Area, y = m, label = round(m, 2)), 
+            color = 'blue', hjust = -0.2) +
+  scale_fill_brewer(palette = 'Set3') +
+  theme_minimal() +
+  labs(title = 'Kwota pożyczki a obszar nieruchomości', x = 'Obszar nieruchomości', y = 'Kwota pożyczki') +
+  theme(legend.position = 'none')
+```
+
+Niezależnie od obszaru kwota pożyczki nie różni się znacząco.
+
+
+
+
+
+
 
 #poprawianie błędów:
 
