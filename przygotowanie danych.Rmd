@@ -93,8 +93,23 @@ library(Information)
 library(scorecard)
 
 find_na(pozyczki)
-imputate_na (pozyczki, method = "median")
+
+# Użycie hotdeck() bez tworzenia dodatkowych kolumn
+library(VIM)
+dane_czyste <- VIM::hotdeck(pozyczki)
 
 
-#imputacja brakow danych
+data_imputed <- hotdeck(pozyczki$Gender, imp_var = FALSE)
+data_imputed <- hotdeck(pozyczki$Married, imp_var = FALSE)
+
+
+# Sprawdzenie wyników
+print(data_imputed)
+
+#
+#znalazlo nam KOLUMNY, w których brakuje danych
+hotdeck(pozyczki$Gender)
+print(pozyczki)
+view(pozyczki)
+
 
