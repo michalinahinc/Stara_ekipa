@@ -34,7 +34,7 @@ Dane, na których pracujemy obejmują: płeć, stan cywilny,liczba osób na utrz
 
 Naszym pierwszym krokiem będzie załadowanie pakietów, które będą nam potrzebne do analizy danych oraz danych, na których będziemy pracować.
 
-```{r ładownie pakietów i danych}
+```{r ładownie pakietów i danych, message=FALSE, warning=FALSE}
 # ładujemy pakiety
 library(tidyverse)
 library(dlookr)
@@ -49,6 +49,7 @@ pozyczki <- read.csv("pozyczki.csv", na.strings = c("", "NA"), stringsAsFactors 
 pozyczki <- data.frame(pozyczki)
 head(pozyczki) #podgląd danych
 ```
+
 Następnie sprawdzamy strukturę naszych danych.
 
 ```{r struktura danych}
@@ -140,16 +141,14 @@ cf <- confront(pozyczki, rules, key="Loan_ID")
 summary(cf)
 barplot(cf, main="Wizualizacja błędów i braków danych")
 ```
+
 Żadna z reguł walidacyjnych nie została złamana. Wszystkie dane spełniają określone kryteria. W naszym zbiorze znajdują się natomiast brakujące dane, które nie mogły być ocenione.
 
 W przypadku zmiennej "Gender" znajduje się 13 braków danych, zmiennej "Married" - 3, zmiennej "Dependents" - 15, zmiennej "Self_Employed" - 32, zmiennej "LoanAmount" - 22, zmiennej "Loan_Amount_Term" - 14, a w przypadku zmiennej "Credit_History" znajduje się 50 braków danych.
 
-
 ### 2.3. Imputacja braków danych
 
-#imputacja testowe  (nie wiem czy dziala - nie odpalałam, bo nie chce zepsuc danych)
-# update: działa
-
+#imputacja testowe (nie wiem czy dziala - nie odpalałam, bo nie chce zepsuc danych) \# update: działa
 
 W celu uzupełnienia braków danych wykorzystujemy metodę imputacji. Dla zmiennych "Gender" i "Married" zastosujemy metodę imputacji dominantą.
 
@@ -176,7 +175,7 @@ pozyczki$Married <- ifelse(is.na(pozyczki$Married),
                            pozyczki$Married)
 ```
 
-Dla zmiennych "Dependents", "Self_Employed" i "Credit_History" wykorzystamy metodę hot-deck, która umożliwia imputację na podstawie podobnych obserwacji w zbiorze danych. 
+Dla zmiennych "Dependents", "Self_Employed" i "Credit_History" wykorzystamy metodę hot-deck, która umożliwia imputację na podstawie podobnych obserwacji w zbiorze danych.
 
 Liczba osób na utrzymaniu może być powiązana ze zmienną dotyczącą stanu cywilnego, informacja o prowadzeniu działalności gospodarczej z dochodem, zaś historia kredytowa od wartości pożyczki
 
@@ -191,6 +190,7 @@ pozyczki$Credit_History <- hotdeck(pozyczki, variable = "Credit_History", ord_va
 
 
 ```
+
 Dla zmiennych numerycznych wykorzystujemy metodę imputacji medianą, ponieważ jest ona bardziej odporna na wartości odstające niż średnia.
 
 ```{r imputacja zmiennych numerycznych}
@@ -204,12 +204,10 @@ plot(kwota_pozyczki)
 plot(okres_pozyczki)
 
 ```
+
 ### Wizualizacje
 
-2. Wykresy dwóch zmiennych ilościowych
-Dochód wnioskodawcy a kwota pożyczki
-
-
+2.  Wykresy dwóch zmiennych ilościowych Dochód wnioskodawcy a kwota pożyczki
 
 ```{r}
 ggplot(pozyczki, aes(x = ApplicantIncome, y = LoanAmount)) +
@@ -236,7 +234,6 @@ pozyczki %>%
   theme(legend.position = 'right')  # Ustawienie legendy
 ```
 
-
 ```{r}
 if(!require('ggrepel')) install.packages('ggrepel')
 library(ggrepel)
@@ -248,8 +245,6 @@ ggplot(pozyczki, aes(x = ApplicantIncome, y = LoanAmount, size = CoapplicantInco
   labs(title = 'Dochód a kwota pożyczki', x = 'Dochód wnioskodawcy', y = 'Kwota pożyczki') +
   theme(legend.position = 'right')
 ```
-
-
 
 ```{r}
 medians <- pozyczki %>%
@@ -268,12 +263,6 @@ ggplot(pozyczki, aes(x = Property_Area, y = LoanAmount)) +
 
 Niezależnie od obszaru kwota pożyczki nie różni się znacząco.
 
-
-
-
-
-
-
 #poprawianie błędów:
 
 ```{r}
@@ -286,8 +275,6 @@ pozyczki$LoanAmount
 localizeErrors(rules, pozyczki) <- NA
 ```
 
-
-
 # instalujemy pakiety
 
 ```{r}
@@ -295,7 +282,6 @@ library(tidyverse)
 library(dlookr) 
 library(editrules)
 ```
-
 
 # Poprawa marginesów lub użycie nowego okna graficznego
 
@@ -325,9 +311,6 @@ library(DMwR)
 library(Information) 
 library(scorecard)
 ```
-
-
-
 
 find_na(pozyczki) imputate_na (pozyczki, method = "median")
 
