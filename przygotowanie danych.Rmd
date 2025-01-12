@@ -277,4 +277,33 @@ ggplot(pozyczki, aes(x = Property_Area, y = LoanAmount)) +
 
 Niezależnie od obszaru kwota pożyczki nie różni się znacząco.
 
+##Analiza opisowa
+
+```{r histogram2, echo=FALSE}
+# Density plot of "price_PLN"
+#::::::::::::::::::::::::::::::::::::::
+density.p <- ggdensity(pozyczki, x = "LoanAmount", 
+                       fill = "Property_Area", palette = "jco")+
+  stat_overlay_normal_density(color = "red", linetype = "dashed")
+
+# Liczymy statystyki wg liczby osób w gospodarstwie:
+stable <- desc_statby(pozyczki, measure.var = "LoanAmount",
+                      grps = "Property_Area")
+stable <- stable[, c("Property_Area", "length", "mean", "sd")]
+# Wykres, szablon "medium orange":
+stable.p <- ggtexttable(stable, rows = NULL, 
+                        theme = ttheme("mOrange"))
+# Podpisujemy wykres:
+#::::::::::::::::::::::::::::::::::::::
+text <- paste("Kwota pożyczki wg obszaru zamieszkania.",
+               sep = " ")
+text.p <- ggparagraph(text = text, face = "italic", size = 11, color = "black")
+# Aranżujemy wykresy na tym samym panelu:
+ggarrange(density.p, stable.p, text.p, 
+          ncol = 1, nrow = 3,
+          heights = c(1, 0.5, 0.3))
+```
+```
+
+
 
