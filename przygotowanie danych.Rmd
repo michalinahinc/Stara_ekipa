@@ -374,6 +374,10 @@ y=LoanAmount,
 x=Loan_Status
 )
 
+#anova
+wyniki <-aov(LoanAmount~Married, data=pozyczki)
+summary(wyniki)
+
 ```
 
 
