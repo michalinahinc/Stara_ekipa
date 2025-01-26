@@ -1,28 +1,98 @@
 ---
-title: "Przygotowanie danych"
+title: "Analiza danych - projekt"
 author: "Nikola Chrzonowska, Karolina Popiołek, Michalina Hinc"
 date: "2024-12-08"
-output: html_document
+output:
+  rmdformats::readthedown:
+    self_contained: true
+    thumbnails: true
+    lightbox: true
+    gallery: false
+    highlight: tango
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(
+	message = FALSE,
+	warning = FALSE,
+	include = FALSE,
+	library(rmdformats)
+)
 ```
 
-#
+## 1. Wprowadzenie i cel projektu
+
+Celem niniejszego projektu jest opracowanie i wdrożenie systemu automatycznej oceny zdolności kredytowej klientów w czasie rzeczywistym. Projekt zakłada stworzenie modelu klasyfikacyjnego, który na podstawie danych podanych przez klienta podczas wypełniania wniosku online będzie w stanie precyzyjnie określić, czy dany klient kwalifikuje się do otrzymania pożyczki.
+
+System ten ma na celu nie tylko przyspieszenie procesu decyzyjnego, ale także zwiększenie jego trafności. Dzięki segmentacji klientów oraz identyfikacji cech charakterystycznych dla osób spełniających kryteria kredytowe, firma będzie mogła dostosować swoje oferty do konkretnych grup odbiorców.
+
+Dane, na których pracujemy obejmują: płeć, stan cywilny,liczba osób na utrzymaniu, wykształcenie, informację czy wnioskodawca prowadzi działalność gospodarczą, jego dochód, dochód współwnioskodawcy, kwotę pożyczki, okres spłaty, historię kredytową, lokalizację nieruchomości i status przyznania pożyczki. Mają 614 wierszy i 13 kolumn.
+
+## 2. Przygotowanie danych
+
+### 2.1. Ładowanie pakietów i danych
+
+Naszym pierwszym krokiem będzie załadowanie pakietów, które będą nam potrzebne do analizy danych oraz danych, na których będziemy pracować.
+
+```{r ładownie pakietów i danych, message=FALSE, warning=FALSE}
+# ładujemy pakiety
+library(tidyverse)
+library(dlookr)
+library(editrules)
+library(validate)
+library(naniar)
+library(VIM)
+library(dplyr)
+library(qwraps2)
+library(arsenal)
+library(e1071)
+library(haven)
+library(papeR)
+library(ggplot2)
+library(kableExtra)
+library(summarytools)
+library(classInt)
+library(pastecs)
+library(desctable)
+library(frequency)
+library(corrplot)
+library(ggpubr)
+
+#ładujemy dane
+pozyczki <- read.csv("pozyczki.csv", na.strings = c("", "NA"), stringsAsFactors = FALSE)
+pozyczki <- data.frame(pozyczki)
+head(pozyczki) #podgląd danych
+```
+
 ```{r}
-# Stara_ekipa
-#Analiza danych - Projekt zespołowy.
+#zmiana danych  z "chr" na factor
 
-#analiza braków danych
+Education <- as.factor(pozyczki$Education)
 
+
+```
+
+
+Następnie sprawdzamy strukturę naszych danych.
+
+```{r struktura danych}
+#sprawdzamy strukturę danych
+str(pozyczki)
+```
+
+### 2.1. Analiza braków danych
+
+Za pomocą pakietu "naniar" sprawdzamy, czy w naszym zbiorze danych występują braki danych.
+
+```{r}
+#sprawdzamy braki danych
 library(naniar)
 n_miss(pozyczki)
 #mamy 149 braków danych
 
-#procent braków
+#procent braków danych
 prop_miss(pozyczki)
-#mamy 1,9% braków danych w stosunku do całości obserwacji
+#mamy około 1,9% braków danych w stosunku do całości obserwacji
 
 #tabela podsumowująca
 miss_var_summary(pozyczki)
@@ -30,68 +100,66 @@ miss_var_summary(pozyczki)
 
 #wizualizacja ogólna
 vis_miss(pozyczki)
-#vis_miss(pozyczki, cluster=TRUE)
-vis_miss(pozyczki, sort_miss=TRUE)
+vis_miss(pozyczki, sort_miss=TRUE) #sortowanie
 
 #mapa
-gg_miss_fct(pozyczki, fct = Self_Employed)
-gg_miss_fct(pozyczki, fct = Married)
-gg_miss_fct(pozyczki, fct = Education)
-gg_miss_fct(pozyczki, fct = Credit_History)
+gg_miss_fct(pozyczki, fct = Self_Employed) +
+  scale_fill_distiller(direction = 1, palette = "GnBu")
+gg_miss_fct(pozyczki, fct = Married) +
+  scale_fill_distiller(direction = 1, palette = "GnBu")
+gg_miss_fct(pozyczki, fct = Education) +
+  scale_fill_distiller(direction = 1, palette = "GnBu")
+gg_miss_fct(pozyczki, fct = Credit_History) +
+  scale_fill_distiller(direction = 1, palette = "GnBu")
+
 #Naszym zdaniem zmienna Education prezentuje największe rozbieżności pomiędzy brakami danych.
+
+# Wizualizacja braków danych względem decyzji o przyznaniu pożyczki
+
+# Wizualizacja braków danych względem loan_status
+gg_miss_fct(pozyczki, fct = Loan_Status) +
+  labs(title = "Procent braków danych według decyzji o udzieleniu pożyczki", x = "Decyzja odnośnie udzielenia pożyczki", y = "% braków danych") +
+  scale_fill_distiller(direction = 1, palette = "GnBu")
+
 ```
 
-#poprawianie błędów
-pozyczki[localizeErrors(reguly, pozyczki$LoanAmount)] <-NA
-Karolina Popiołek
-# instalujemy pakiety
-library(tidyverse)
-library(dlookr)
-library(editrules)
+### 2.2. Walidacja danych
+
+Kolejnym krokiem jest walidacja danych. Sprawdzamy, czy dane spełniają nasze założenia.Wykorzystujemy do tego pakiet "validate".
+
+```{r reguły, warning=FALSE}
 library(validate)
-attach(pozyczki)
+# Podgląd danych
+glimpse(pozyczki)
 
-# reguły
-#jesli jest dochod w coapplicant to musi byc married
-#loand statusn a loan amount - zaleznosc jakas spytac siem
+rules <- validator(
+  Gender %in% c("Male", "Female"),
+  Married %in% c("Yes", "No"),
+  Dependents >= 0,
+  Education %in% c("Graduate", "Not Graduate"),
+  Self_Employed %in% c("Yes", "No"),
+  ApplicantIncome >= 0,
+  CoapplicantIncome >= 0,
+  LoanAmount > 0,
+  Loan_Amount_Term > 0,
+  Credit_History %in% c("0", "1"),
+  Property_Area %in% c("Urban", "Semiurban", "Rural"),
+  Loan_Status %in% c("Y", "N")
+)
 
-#REGUŁY PRAWIDŁOWE
-reguly <- editset(c(
-  "LoanAmount > 0",
-  "ApplicantIncome >= 0",
-  "CoapplicantIncome >= 0",
-  "Education %in% c('Graduate', 'Not Graduate')",
-  "Property_Area %in% c('Urban', 'Semiurban', 'Rural')"
-))
+# Zastosowanie reguł walidacyjnych
+wyniki <- confront(pozyczki, rules)
 
-# walidacja
-bledy <- violatedEdits(reguly, pozyczki)
+# Raport z walidacji
+summary(wyniki)
 
-# Poprawa marginesów lub użycie nowego okna graficznego
-par(mar = c(5, 4, 2, 1)) # Opcjonalnie zmniejszenie marginesów
-plot(bledy)
+# Wiersze, które nie spełniają reguł
+niespelnione <- as.data.frame(summary(wyniki))
+View(niespelnione)
 
-#imputacja
-library(dplyr) # ładuję biblioteki
-library(ggplot2)
-library(rmdformats)
-library(validate)
-library(validatetools)
-library(dcmodify)
-library(errorlocate)
-library(deductive)
-library(VIM)
-library(simputation)
-library(lumberjack)
-library(ISLR) 
-library(dlookr)
-library(xts)
-library(quantmod)
-library(ROCR)
-library(DMwR)
-library(Information)
-library(scorecard)
+```
 
+<<<<<<< HEAD
 find_na(pozyczki)
 
 # Użycie hotdeck() bez tworzenia dodatkowych kolumn
@@ -112,4 +180,204 @@ hotdeck(pozyczki$Gender)
 print(pozyczki)
 view(pozyczki)
 
+=======
+```{r wizualizacja, warning=FALSE}
+cf <- confront(pozyczki, rules, key="Loan_ID")
+summary(cf)
+barplot(cf, main="Wizualizacja błędów i braków danych")
+```
+
+Żadna z reguł walidacyjnych nie została złamana. Wszystkie dane spełniają określone kryteria. W naszym zbiorze znajdują się natomiast brakujące dane, które nie mogły być ocenione.
+
+W przypadku zmiennej "Gender" znajduje się 13 braków danych, zmiennej "Married" - 3, zmiennej "Dependents" - 15, zmiennej "Self_Employed" - 32, zmiennej "LoanAmount" - 22, zmiennej "Loan_Amount_Term" - 14, a w przypadku zmiennej "Credit_History" znajduje się 50 braków danych.
+
+### 2.3. Imputacja braków danych
+
+#imputacja testowe (nie wiem czy dziala - nie odpalałam, bo nie chce zepsuc danych) \# update: działa
+
+W celu uzupełnienia braków danych wykorzystujemy metodę imputacji. Dla zmiennych "Gender" i "Married" zastosujemy metodę imputacji dominantą.
+
+Na początku przystępujemy do zdefiniowania funkcji dominanty.
+
+```{r zdefiniowanie funkcji dominanty}
+Mode <- function(x, na.rm = FALSE) {
+  uniqx <- unique(x)
+  uniqx[which.max(tabulate(match(x, uniqx)))]
+}
+```
+
+Następnie przechodzimy do imputacji braków danych.
+
+```{r imputacja zmiennych "Gender" i "Married"}
+
+# imputacja dominantą
+pozyczki$Gender <- ifelse(is.na(pozyczki$Gender), 
+                          Mode(pozyczki$Gender, na.rm = TRUE), 
+                          pozyczki$Gender)
+
+pozyczki$Married <- ifelse(is.na(pozyczki$Married), 
+                           Mode(pozyczki$Married, na.rm = TRUE), 
+                           pozyczki$Married)
+```
+
+Dla zmiennych "Dependents", "Self_Employed" i "Credit_History" wykorzystamy metodę hot-deck, która umożliwia imputację na podstawie podobnych obserwacji w zbiorze danych.
+
+Liczba osób na utrzymaniu może być powiązana ze zmienną dotyczącą stanu cywilnego, informacja o prowadzeniu działalności gospodarczej z dochodem, zaś historia kredytowa od wartości pożyczki
+
+```{r imputacja zmiennych "Dependents", "Self_Employed" i "Credit_History"}
+
+# imputacja metodą hot-deck
+pozyczki$Dependents <- hotdeck(pozyczki, variable = "Dependents")$Dependents
+
+pozyczki$Self_Employed <- hotdeck(pozyczki, variable = "Self_Employed", ord_var = "ApplicantIncome")$Self_Employed
+
+pozyczki$Credit_History <- hotdeck(pozyczki, variable = "Credit_History", ord_var = "LoanAmount")$Credit_History
+
+
+```
+
+Dla zmiennych numerycznych wykorzystujemy metodę imputacji medianą, ponieważ jest ona bardziej odporna na wartości odstające niż średnia.
+
+```{r imputacja zmiennych numerycznych}
+
+# imputacja medianą zmiennych numerycznych
+kwota_pozyczki <- pozyczki$LoanAmount <- imputate_na(pozyczki, LoanAmount, method = "median")
+okres_pozyczki <- pozyczki$Loan_Amount_Term <- imputate_na(pozyczki, Loan_Amount_Term, method = "median")
+
+# wizualizacja zamiany braków danych metodą mediany
+plot(kwota_pozyczki)
+plot(okres_pozyczki)
+
+```
+
+### Wizualizacje
+
+2.  Wykresy dwóch zmiennych ilościowych Dochód wnioskodawcy a kwota pożyczki
+
+```{r}
+ggplot(pozyczki, aes(x = ApplicantIncome, y = LoanAmount)) +
+  geom_point(aes(color = Credit_History)) +
+  geom_smooth(method = 'loess', se = FALSE) +
+  theme_minimal() +
+  labs(title = 'Dochód vs Kwota pożyczki', x = 'Dochód wnioskodawcy', y = 'Kwota pożyczki') +
+  theme(legend.position = c(0.8, 0.2))
+
+```
+
+Związek stanu cywilnego z historią kredytową
+
+```{r}
+pozyczki %>%
+  filter(!is.na(Dependents)) %>%  # Usuwamy brakujące dane dla Dependents
+  ggplot(aes(x = Married, y = Dependents)) +
+  geom_jitter(aes(color = Dependents), width = 0.2, size = 3, alpha = 0.6) +
+  theme_minimal() +
+  scale_color_brewer(palette = 'Set1') +  # Paleta kolorów
+  labs(title = 'Stan cywilny a liczba osób w gospodarstwie domowym',
+       x = 'Stan cywilny',
+       y = 'Liczba osób w gospodarstwie domowym') +
+  theme(legend.position = 'right')  # Ustawienie legendy
+```
+
+```{r}
+if(!require('ggrepel')) install.packages('ggrepel')
+library(ggrepel)
+
+ggplot(pozyczki, aes(x = ApplicantIncome, y = LoanAmount, size = CoapplicantIncome, color = Loan_Status)) +
+  geom_point(alpha = 0.6) +
+  scale_color_manual(values = c('green', 'red')) +
+  theme_minimal() +
+  labs(title = 'Dochód a kwota pożyczki', x = 'Dochód wnioskodawcy', y = 'Kwota pożyczki') +
+  theme(legend.position = 'right')
+```
+
+```{r}
+medians <- pozyczki %>%
+  group_by(Property_Area) %>%
+  summarize(m = median(LoanAmount, na.rm = TRUE))
+
+ggplot(pozyczki, aes(x = Property_Area, y = LoanAmount)) +
+  geom_boxplot(aes(fill = Property_Area), outlier.alpha = 0.25) +
+  geom_text(data = medians, aes(x = Property_Area, y = m, label = round(m, 2)), 
+            color = 'blue', hjust = -0.2) +
+  scale_fill_brewer(palette = 'Set3') +
+  theme_minimal() +
+  labs(title = 'Kwota pożyczki a obszar nieruchomości', x = 'Obszar nieruchomości', y = 'Kwota pożyczki') +
+  theme(legend.position = 'none')
+```
+
+Niezależnie od obszaru kwota pożyczki nie różni się znacząco.
+
+##Analiza opisowa
+
+```{r histogram2, echo=FALSE}
+# Density plot of "price_PLN"
+#::::::::::::::::::::::::::::::::::::::
+density.p <- ggdensity(pozyczki, x = "LoanAmount", 
+                       fill = "Property_Area", palette = "jco")+
+  stat_overlay_normal_density(color = "red", linetype = "dashed")
+
+# Liczymy statystyki wg liczby osób w gospodarstwie:
+stable <- desc_statby(pozyczki, measure.var = "LoanAmount",
+                      grps = "Property_Area")
+stable <- stable[, c("Property_Area", "length", "mean", "sd")]
+# Wykres, szablon "medium orange":
+stable.p <- ggtexttable(stable, rows = NULL, 
+                        theme = ttheme("mOrange"))
+# Podpisujemy wykres:
+#::::::::::::::::::::::::::::::::::::::
+text <- paste("Kwota pożyczki wg obszaru zamieszkania.",
+               sep = " ")
+text.p <- ggparagraph(text = text, face = "italic", size = 11, color = "black")
+# Aranżujemy wykresy na tym samym panelu:
+ggarrange(density.p, stable.p, text.p, 
+          ncol = 1, nrow = 3,
+          heights = c(1, 0.5, 0.3))
+```
+```
+```{r}
+#testowanie statystyczne
+library(ggstatsplot)
+
+ggpiestats(
+  data = pozyczki,
+  x = Loan_Status,
+  y = Education
+)
+#wykres ilustruje różnicę w statusie pożyczki (Loan_Status) w #dwóch grupach: Graduate i Not Graduate, przedstawioną w postaci #wykresów kołowych. Dodatkowo zawiera wyniki testów #statystycznych, które sprawdzają zależność między tymi zmiennymi.
+
+
+ggpiestats(
+  data = pozyczki,
+  x = Loan_Status,
+  y = Gender
+)
+#Ten wykres przedstawia różnice w decyzjach dotyczących pożyczki #(Loan_Status) w zależności od płci: Female i Male. Dodatkowo #zawiera wyniki testów statystycznych, które analizują zależność #między płcią a statusem pożyczki.
+#67% kobiet otrzymało pozytywną decyzję dotyczącą pożyczki, 33% kobiet otrzymało decyzję negatywną
+#wyniki testu statystycznego: wskazują na istotną zależność między statusem pożyczki a kategorią Loan_Status w grupie kobiet.
+#69% mężczyzn otrzymało pozytywną decyzję dotyczącą pożyczki, 31% mężczyzn otrzymało decyzję negatywną
+#wyniki testu statystycznego: wskazują na bardzo silną zależność w tej grupie.
+#Porównanie obu grup za pomocą chi kwadrat: 0.63, co oznacza, że nie ma statystycznie istotnej zależności między płcią a decyzją o przyznaniu pożyczk.
+#wspolczynnik Cramera = 0.00 - wskazuje, że siła zależności jest zerowa
+
+#malzenstwo a kwota pozyczki
+ggbetweenstats(
+data=pozyczki,
+y=LoanAmount,
+x=Married
+)
+
+#status pozyczki a kwota pozyczki
+ggbetweenstats(
+data=pozyczki,
+y=LoanAmount,
+x=Loan_Status
+)
+
+```
+
+
+
+
+>>>>>>> 01f30f73af917ae5e559f2fc3bc5ba3cc4b30e79
 
