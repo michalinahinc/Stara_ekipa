@@ -11,11 +11,10 @@ output:
     highlight: tango
 ---
 
-```{r setup, include=FALSE}
+```{r setup}
 knitr::opts_chunk$set(
 	message = FALSE,
 	warning = FALSE,
-	include = FALSE,
 	library(rmdformats)
 )
 ```
