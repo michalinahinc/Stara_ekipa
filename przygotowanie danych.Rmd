@@ -219,7 +219,7 @@ plot(okres_pozyczki)
 
 ```
 
-##3. Wizualizacje
+###3.Wizualizacje
 
 Dodajemy nową kolumnę sumującą dochód wnioskodawcy i współwnioskodawcy w celu zbadania zależności między dochodem wnioskodawców a kwotą pożyczki.
 
@@ -270,7 +270,7 @@ ggplot(pozyczki, aes(x = ApplicantIncome, y = LoanAmount, size = CoapplicantInco
   theme(legend.position = 'right')
 ```
 
-##4. Analiza opisowa
+###4.Analiza opisowa
 
 Poniższy wykres przedstawia rozkład kwot pożyczek udzielanych w zależności od tego, czy dana nieruchomość znajduje się na obszarze wiejskim, podmiejskim czy miejskim.
 
@@ -327,7 +327,7 @@ ggplot(pozyczki, aes(x = Gender, y = LoanAmount)) +
 Mężczyźni zaciągają przeciętnie wyższe pożyczki niż kobiety, o czym świadczy wyższa wartość górnej krawędzi pudełka i dłuższy "wąs" wykresu.
 W obu grupach występują pojedyncze przypadki bardzo wysokich kwot pożyczek, które odbiegają od większości danych.
 
-##5. Testowanie statystyczne
+###5.Testowanie statystyczne
 
 ```{r message=FALSE, warning=FALSE, paged.print=FALSE}
 install.packages("ggstatsplot")
@@ -339,8 +339,10 @@ ggpiestats(
   y = Education
 )
 ```
-Wykres kołowy przedstawia zależność między statusem edukacyjnym a decyzją o przyznaniu kredytu. Absolwenci (Graduate) częściej otrzymują kredyt (71%) niż nieabsolwenci (61%). Różnica jest istotna statystycznie (p = 0.03), ale jej siła jest niewielka (V-Cramer = 0.08).
 
+Wykres kołowy przedstawia zależność między statusem edukacyjnym a decyzją o przyznaniu kredytu.
+Absolwenci (Graduate) częściej otrzymują kredyt (71%) niż nieabsolwenci (61%).
+Różnica jest istotna statystycznie (p = 0.03), ale jej siła jest niewielka (V-Cramer = 0.08).
 
 ```{r}
 ggpiestats(
@@ -365,17 +367,15 @@ y=LoanAmount,
 x=Married
 )
 ```
+
 Wykres pokazuje różnicę w wysokości kwoty kredytu (LoanAmount) w zależności od statusu małżeńskiego (Married).
 No (n = 213): Osoby niezamężne/nieżonate.
-Yes (n = 401): Osoby zamężne/żonate
-Średnia kwota kredytu dla grupy No: 128.85.
+Yes (n = 401): Osoby zamężne/żonate Średnia kwota kredytu dla grupy No: 128.85.
 Średnia kwota kredytu dla grupy Yes: 154.73.
-Wynik p < 0.05 wskazuje, że różnica między grupami jest istotna statystycznie.
+Wynik p \< 0.05 wskazuje, że różnica między grupami jest istotna statystycznie.
 Osoby zamężne/żonate biorą wyższe kwoty kredytu średnio niż osoby niezamężne/nieżonate.
 Rozkład kwot jest bardziej rozproszony w grupie zamężnych/żonatych.
 Wnioski: Status małżeński wpływa na wysokość zaciąganej kwoty kredytu, choć różnica ma niewielką siłę efektu.
-
-
 
 ```{r}
 #status pozyczki a kwota pozyczki
@@ -392,4 +392,70 @@ wyniki <-aov(LoanAmount~Married, data=pozyczki)
 summary(wyniki)
 ```
 
-##5. Podsumowanie i wnioski
+###6.Podsumowanie i wnioski
+
+#6.1.Podsumowanie wyników
+Wprowadzenie i analiza danych
+W projekcie przeanalizowano dane dotyczące wniosków kredytowych, obejmujące 614 obserwacji i 13 zmiennych. Dane zawierały informacje o płci, stanie cywilnym, liczbie osób na utrzymaniu, wykształceniu, działalności gospodarczej, dochodach, kwotach pożyczek, okresie spłaty oraz historii kredytowej. W wyniku analizy braków danych wykryto około 1,9% braków, które zostały uzupełnione za pomocą metod imputacji (dominanta, hot-deck, mediana).
+
+##6.1.1.Wizualizacje i zależności w danych
+
+Dochód vs. Kwota pożyczki
+Zaobserwowano, że wyższy całkowity dochód wnioskodawców jest związany z wyższymi kwotami pożyczek, jednak zależność ta nie jest idealna (duże rozproszenie punktów). Lepsza historia kredytowa sprzyja przyznawaniu wyższych pożyczek.
+
+Stan cywilny a liczba osób w gospodarstwie domowym
+Osoby w związku małżeńskim częściej mają większą liczbę osób na utrzymaniu.
+
+Kwota pożyczki a obszar zamieszkania
+Mieszkańcy obszarów wiejskich zaciągają średnio wyższe pożyczki niż osoby z miast i terenów podmiejskich, przy czym największe odchylenia występują w miastach.
+
+Kwota pożyczki a płeć wnioskodawcy
+Mężczyźni zaciągają przeciętnie wyższe pożyczki niż kobiety, co odzwierciedlają wartości wykresów pudełkowych.
+
+Status edukacyjny i płeć a decyzje kredytowe
+Absolwenci mają większe szanse na pozytywną decyzję kredytową (71%) niż osoby bez wykształcenia wyższego (61%). Płeć nie wpływa istotnie na decyzję o przyznaniu kredytu (różnice statystycznie nieistotne).
+
+##6.1.2.Testowanie statystyczne
+
+Zależność między wykształceniem a decyzją kredytową jest istotna statystycznie (p = 0,03), ale siła zależności jest niewielka (V-Cramer = 0,08).
+Płeć nie wykazuje statystycznie istotnego wpływu na decyzję kredytową (p = 0,63, V-Cramer = 0,00).
+
+
+##6.2. Wnioski
+Zwiększenie trafności modelu klasyfikacyjnego
+
+Lepsza historia kredytowa i wyższy dochód wnioskodawców mają pozytywny wpływ na decyzje o przyznaniu kredytu. Warto uwzględnić te czynniki jako kluczowe zmienne w budowie modelu.
+Wykształcenie również wpływa na decyzję kredytową, choć jego znaczenie jest relatywnie niewielkie.
+Optymalizacja procesów decyzyjnych
+
+Wprowadzenie dodatkowych kryteriów, takich jak analiza obszaru zamieszkania i profilu klienta (np. historia kredytowa i liczba osób w gospodarstwie), może poprawić trafność decyzji kredytowych.
+Należy monitorować wpływ czynników nieistotnych (np. płeć) na wyniki modelu, aby uniknąć potencjalnej dyskryminacji.
+Rekomendacje dotyczące braków danych
+
+Należy wdrożyć procesy ograniczające powstawanie braków danych w systemach wprowadzania informacji (np. wymuszenie wypełniania pól kluczowych).
+Imputacja metodą hot-deck okazała się skuteczna w uzupełnianiu braków danych związanych z cechami kategorialnymi.
+Rozważenie dalszej segmentacji klientów
+
+Segmentacja klientów na podstawie dochodów, historii kredytowej i obszaru zamieszkania pozwoli na bardziej precyzyjne dostosowanie oferty kredytowej do potrzeb różnych grup klientów.
+
+
+###7. PODZIĘKOWANIE
+```{r}
+library(ggplot2)
+plot <- ggplot() +
+  theme_void() +
+  annotate("rect", xmin = -1.1, xmax = 1.1, ymin = -1.1, ymax = 1.1, fill = "lightblue", color = "darkblue", size = 2, alpha = 0.5) +
+  annotate("text", x = 0, y = 0, label = "Dziękujemy, pozdrawiamy", size = 17, color = "white", fontface = "bold", family = "Comic Sans MS") + 
+  theme(plot.margin = margin(0, 0, 0, 0)) +  # Usuwamy marginesy
+  theme(
+    plot.background = element_rect(fill = "blue", color = NA),
+    panel.background = element_rect(fill = "pink", color = NA)
+  ) +
+  # Ustawienie osi
+  xlim(-1, 1) + ylim(-1, 1)
+
+# Wyświetlenie wykresu
+print(plot)
+```
+
+
