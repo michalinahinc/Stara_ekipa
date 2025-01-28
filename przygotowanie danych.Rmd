@@ -13,11 +13,11 @@ output:
 
 ## 1. Wprowadzenie i cel projektu
 
-Celem niniejszego projektu jest opracowanie i wdrożenie systemu automatycznej oceny zdolności kredytowej klientów w czasie rzeczywistym. Projekt zakłada stworzenie modelu klasyfikacyjnego, który na podstawie danych podanych przez klienta podczas wypełniania wniosku online będzie w stanie precyzyjnie określić, czy dany klient kwalifikuje się do otrzymania pożyczki.
+#Celem niniejszego projektu jest opracowanie i wdrożenie systemu automatycznej oceny zdolności kredytowej klientów w czasie rzeczywistym. Projekt zakłada #stworzenie modelu klasyfikacyjnego, który na podstawie danych podanych przez klienta podczas wypełniania wniosku online będzie w stanie precyzyjnie określić, czy #dany klient kwalifikuje się do otrzymania pożyczki.
 
-System ten ma na celu nie tylko przyspieszenie procesu decyzyjnego, ale także zwiększenie jego trafności. Dzięki segmentacji klientów oraz identyfikacji cech charakterystycznych dla osób spełniających kryteria kredytowe, firma będzie mogła dostosować swoje oferty do konkretnych grup odbiorców.
+#System ten ma na celu nie tylko przyspieszenie procesu decyzyjnego, ale także zwiększenie jego trafności. Dzięki segmentacji klientów oraz identyfikacji cech #charakterystycznych dla osób spełniających kryteria kredytowe, firma będzie mogła dostosować swoje oferty do konkretnych grup odbiorców.
 
-Dane, na których pracujemy obejmują: płeć, stan cywilny,liczba osób na utrzymaniu, wykształcenie, informację czy wnioskodawca prowadzi działalność gospodarczą, jego dochód, dochód współwnioskodawcy, kwotę pożyczki, okres spłaty, historię kredytową, lokalizację nieruchomości i status przyznania pożyczki. Mają 614 wierszy i 13 kolumn.
+#Dane, na których pracujemy obejmują: płeć, stan cywilny,liczba osób na utrzymaniu, wykształcenie, informację czy wnioskodawca prowadzi działalność gospodarczą, jego dochód, dochód współwnioskodawcy, kwotę pożyczki, okres spłaty, historię kredytową, lokalizację nieruchomości i status przyznania pożyczki. Mają 614 wierszy i 13 kolumn.
 
 ## 2. Przygotowanie danych
 
