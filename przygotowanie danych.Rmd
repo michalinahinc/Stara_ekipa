@@ -219,7 +219,7 @@ plot(okres_pozyczki)
 
 ```
 
-###3.Wizualizacje
+### 3.Wizualizacje
 
 Dodajemy nową kolumnę sumującą dochód wnioskodawcy i współwnioskodawcy w celu zbadania zależności między dochodem wnioskodawców a kwotą pożyczki.
 
@@ -270,7 +270,7 @@ ggplot(pozyczki, aes(x = ApplicantIncome, y = LoanAmount, size = CoapplicantInco
   theme(legend.position = 'right')
 ```
 
-###4.Analiza opisowa
+### 4.Analiza opisowa
 
 Poniższy wykres przedstawia rozkład kwot pożyczek udzielanych w zależności od tego, czy dana nieruchomość znajduje się na obszarze wiejskim, podmiejskim czy miejskim.
 
@@ -327,7 +327,7 @@ ggplot(pozyczki, aes(x = Gender, y = LoanAmount)) +
 Mężczyźni zaciągają przeciętnie wyższe pożyczki niż kobiety, o czym świadczy wyższa wartość górnej krawędzi pudełka i dłuższy "wąs" wykresu.
 W obu grupach występują pojedyncze przypadki bardzo wysokich kwot pożyczek, które odbiegają od większości danych.
 
-###5.Testowanie statystyczne
+### 5.Testowanie statystyczne
 
 ```{r message=FALSE, warning=FALSE, paged.print=FALSE}
 install.packages("ggstatsplot")
@@ -392,39 +392,37 @@ wyniki <-aov(LoanAmount~Married, data=pozyczki)
 summary(wyniki)
 ```
 
-###6.Podsumowanie i wnioski
+### 6.Podsumowanie i wnioski
 
-#6.1.Podsumowanie wyników
-Wprowadzenie i analiza danych
-W projekcie przeanalizowano dane dotyczące wniosków kredytowych, obejmujące 614 obserwacji i 13 zmiennych. Dane zawierały informacje o płci, stanie cywilnym, liczbie osób na utrzymaniu, wykształceniu, działalności gospodarczej, dochodach, kwotach pożyczek, okresie spłaty oraz historii kredytowej. W wyniku analizy braków danych wykryto około 1,9% braków, które zostały uzupełnione za pomocą metod imputacji (dominanta, hot-deck, mediana).
+##### 6.1.Podsumowanie wyników 
 
-##6.1.1.Wizualizacje i zależności w danych
+Wprowadzenie i analiza danych W projekcie przeanalizowano dane dotyczące wniosków kredytowych, obejmujące 614 obserwacji i 13 zmiennych.
+Dane zawierały informacje o płci, stanie cywilnym, liczbie osób na utrzymaniu, wykształceniu, działalności gospodarczej, dochodach, kwotach pożyczek, okresie spłaty oraz historii kredytowej.
+W wyniku analizy braków danych wykryto około 1,9% braków, które zostały uzupełnione za pomocą metod imputacji (dominanta, hot-deck, mediana).
 
-Dochód vs. Kwota pożyczki
-Zaobserwowano, że wyższy całkowity dochód wnioskodawców jest związany z wyższymi kwotami pożyczek, jednak zależność ta nie jest idealna (duże rozproszenie punktów). Lepsza historia kredytowa sprzyja przyznawaniu wyższych pożyczek.
+##### 6.1.1.Wizualizacje i zależności w danych
 
-Stan cywilny a liczba osób w gospodarstwie domowym
-Osoby w związku małżeńskim częściej mają większą liczbę osób na utrzymaniu.
+Dochód vs. Kwota pożyczki Zaobserwowano, że wyższy całkowity dochód wnioskodawców jest związany z wyższymi kwotami pożyczek, jednak zależność ta nie jest idealna (duże rozproszenie punktów).
+Lepsza historia kredytowa sprzyja przyznawaniu wyższych pożyczek.
 
-Kwota pożyczki a obszar zamieszkania
-Mieszkańcy obszarów wiejskich zaciągają średnio wyższe pożyczki niż osoby z miast i terenów podmiejskich, przy czym największe odchylenia występują w miastach.
+Stan cywilny a liczba osób w gospodarstwie domowym Osoby w związku małżeńskim częściej mają większą liczbę osób na utrzymaniu.
 
-Kwota pożyczki a płeć wnioskodawcy
-Mężczyźni zaciągają przeciętnie wyższe pożyczki niż kobiety, co odzwierciedlają wartości wykresów pudełkowych.
+Kwota pożyczki a obszar zamieszkania Mieszkańcy obszarów wiejskich zaciągają średnio wyższe pożyczki niż osoby z miast i terenów podmiejskich, przy czym największe odchylenia występują w miastach.
 
-Status edukacyjny i płeć a decyzje kredytowe
-Absolwenci mają większe szanse na pozytywną decyzję kredytową (71%) niż osoby bez wykształcenia wyższego (61%). Płeć nie wpływa istotnie na decyzję o przyznaniu kredytu (różnice statystycznie nieistotne).
+Kwota pożyczki a płeć wnioskodawcy Mężczyźni zaciągają przeciętnie wyższe pożyczki niż kobiety, co odzwierciedlają wartości wykresów pudełkowych.
 
-##6.1.2.Testowanie statystyczne
+Status edukacyjny i płeć a decyzje kredytowe Absolwenci mają większe szanse na pozytywną decyzję kredytową (71%) niż osoby bez wykształcenia wyższego (61%).
+Płeć nie wpływa istotnie na decyzję o przyznaniu kredytu (różnice statystycznie nieistotne).
+
+##### 6.1.2.Testowanie statystyczne
 
 Zależność między wykształceniem a decyzją kredytową jest istotna statystycznie (p = 0,03), ale siła zależności jest niewielka (V-Cramer = 0,08).
 Płeć nie wykazuje statystycznie istotnego wpływu na decyzję kredytową (p = 0,63, V-Cramer = 0,00).
 
+##### 6.2. Wnioski Zwiększenie trafności modelu klasyfikacyjnego
 
-##6.2. Wnioski
-Zwiększenie trafności modelu klasyfikacyjnego
-
-Lepsza historia kredytowa i wyższy dochód wnioskodawców mają pozytywny wpływ na decyzje o przyznaniu kredytu. Warto uwzględnić te czynniki jako kluczowe zmienne w budowie modelu.
+Lepsza historia kredytowa i wyższy dochód wnioskodawców mają pozytywny wpływ na decyzje o przyznaniu kredytu.
+Warto uwzględnić te czynniki jako kluczowe zmienne w budowie modelu.
 Wykształcenie również wpływa na decyzję kredytową, choć jego znaczenie jest relatywnie niewielkie.
 Optymalizacja procesów decyzyjnych
 
@@ -438,8 +436,8 @@ Rozważenie dalszej segmentacji klientów
 
 Segmentacja klientów na podstawie dochodów, historii kredytowej i obszaru zamieszkania pozwoli na bardziej precyzyjne dostosowanie oferty kredytowej do potrzeb różnych grup klientów.
 
+### 7. PODZIĘKOWANIE
 
-###7. PODZIĘKOWANIE
 ```{r}
 library(ggplot2)
 plot <- ggplot() +
@@ -457,5 +455,3 @@ plot <- ggplot() +
 # Wyświetlenie wykresu
 print(plot)
 ```
-
-
