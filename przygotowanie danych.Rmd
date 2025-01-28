@@ -25,7 +25,7 @@ Dane, na których pracujemy obejmują: płeć, stan cywilny,liczba osób na utrz
 
 Naszym pierwszym krokiem będzie załadowanie pakietów, które będą nam potrzebne do analizy danych oraz danych, na których będziemy pracować.
 
-```{r ładownie pakietów i danych, message=FALSE, warning=FALSE}
+```{r ładownie pakietów i danych, message=FALSE, warning=FALSE, include=FALSE}
 # ładujemy pakiety
 library(tidyverse)
 library(dlookr)
@@ -210,19 +210,28 @@ plot(okres_pozyczki)
 
 ### Wizualizacje
 
-Wykresy dwóch zmiennych ilościowych Dochód wnioskodawcy a kwota pożyczki
+Dodajemy nową kolumnę sumującą dochód wnioskodawcy i współwnioskodawcy w celu zbadania zależności między dochodem wnioskodawców a kwotą pożyczki.  
 
 ```{r}
-ggplot(pozyczki, aes(x = ApplicantIncome, y = LoanAmount)) +
+pozyczki$TotalIncome <- pozyczki$ApplicantIncome + pozyczki$CoapplicantIncome
+```
+
+Poniższy wykres ukazuje zależność między dochodem wnioskodawcy a kwotą pożyczki.
+
+```{r}
+ggplot(pozyczki, aes(x = TotalIncome, y = LoanAmount)) +
   geom_point(aes(color = Credit_History)) +
   geom_smooth(method = 'loess', se = FALSE) +
   theme_minimal() +
-  labs(title = 'Dochód vs Kwota pożyczki', x = 'Dochód wnioskodawcy', y = 'Kwota pożyczki') +
+  labs(title = 'Dochód vs Kwota pożyczki', x = 'Całkowity dochód wnioskodawców', y = 'Kwota pożyczki') +
   theme(legend.position = c(0.8, 0.2))
 
 ```
+Na podstawie powyższej wizualizacji można zaobserwować, że generalnie im wyższy dochód wnioskodawcy, tym  wyższa kwota pożyczki.Punkty są dość rozproszone wokół linii trendu, co oznacza, że dochód nie jest jedynym czynnikiem wpływającym na wysokość pożyczki. 
 
-Związek stanu cywilnego z historią kredytową
+Można również zauważyć, że osoby z lepszą historią kredytową (ciemniejsze punkty) mają tendencję do zaciągania wyższych pożyczek przy tym samym poziomie dochodu.
+
+W kolejnym kroku sprawdzamy zależność między stanem cywilnym a liczbą osób w gospodarstwie domowym.
 
 ```{r}
 pozyczki %>%
@@ -249,34 +258,12 @@ ggplot(pozyczki, aes(x = ApplicantIncome, y = LoanAmount, size = CoapplicantInco
   theme(legend.position = 'right')
 ```
 
-```{r}
-ggplot(pozyczki, aes(x = Property_Area, y = LoanAmount)) +
-  geom_boxplot(aes(fill = Property_Area), outlier.alpha = 0.25) +
-  stat_summary(
-    fun = median,
-    geom = "text",
-    aes(label = after_stat(y)),
-    vjust = -0.5,
-    color = "blue",
-    size = 3 
-  ) +
-  scale_fill_brewer(palette = "Set3") +
-  theme_minimal() +
-  labs(
-    title = "Kwota pożyczki a obszar nieruchomości",
-    x = "Obszar nieruchomości",
-    y = "Kwota pożyczki"
-  ) +
-  theme(legend.position = "none")
-```
-
-Niezależnie od obszaru kwota pożyczki nie różni się znacząco.
-
 ## Analiza opisowa
 
+Poniższy wykres przedstawia rozkład kwot pożyczek udzielanych w zależności od tego, czy dana nieruchomość znajduje się na obszarze wiejskim, podmiejskim czy miejskim.
+
 ```{r histogram2, echo=FALSE}
-# Density plot of "price_PLN"
-#::::::::::::::::::::::::::::::::::::::
+# Wykres gęstości
 density.p <- ggdensity(pozyczki, x = "LoanAmount", 
                        fill = "Property_Area", palette = "jco")+
   stat_overlay_normal_density(color = "red", linetype = "dashed")
@@ -289,7 +276,6 @@ stable <- stable[, c("Property_Area", "length", "mean", "sd")]
 stable.p <- ggtexttable(stable, rows = NULL, 
                         theme = ttheme("mOrange"))
 # Podpisujemy wykres:
-#::::::::::::::::::::::::::::::::::::::
 text <- paste("Kwota pożyczki wg obszaru zamieszkania.",
                sep = " ")
 text.p <- ggparagraph(text = text, face = "italic", size = 11, color = "black")
@@ -298,6 +284,32 @@ ggarrange(density.p, stable.p, text.p,
           ncol = 1, nrow = 3,
           heights = c(1, 0.5, 0.3))
 ```
+Widzimy, że rozkłady kwot pożyczek dla wszystkich trzech obszarów mają zbliżony so siebie kształt. Osoby mieszkające na obszarach wiejskich zaciągają średnio nieco wyższe pożyczki niż mieszkańcy obszarów podmiejskich i miejskich. Najwyższym odchyleniem standardowym charakteryzują się pożyczki udzielane na obszarach miejskich.
+
+Kolejny wykres przedstawia rozkład kwot pożyczek w zależności od płci wnioskodawcy.
+
+```{r}
+ggplot(pozyczki, aes(x = Gender, y = LoanAmount)) +
+  geom_boxplot(aes(fill = Gender), outlier.alpha = 0.25) +
+  stat_summary(
+    fun = median,
+    geom = "text",
+    aes(label = after_stat(y)),
+    vjust = -0.5,
+    color = "blue",
+    size = 3 
+  ) +
+  scale_fill_brewer(palette = "Set3") +
+  theme_minimal() +
+  labs(
+    title = "Kwota pożyczki a płeć wnioskodawcy",
+    x = "Płeć",
+    y = "Kwota pożyczki"
+  ) +
+  theme(legend.position = "none")
+```
+Mężczyźni zaciągają przeciętnie wyższe pożyczki niż kobiety, o czym świadczy wyższa wartość górnej krawędzi pudełka i dłuższy "wąs" wykresu. W obu grupach występują pojedyncze przypadki bardzo wysokich kwot pożyczek, które odbiegają od większości danych.
+
 ## Testowanie statystyczne
 
 ```{r message=FALSE, warning=FALSE, paged.print=FALSE}
