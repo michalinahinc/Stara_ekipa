@@ -55,15 +55,6 @@ pozyczki <- data.frame(pozyczki)
 head(pozyczki) #podgląd danych
 ```
 
-```{r}
-#zmiana danych  z "chr" na factor
-
-Education <- as.factor(pozyczki$Education)
-
-
-```
-
-
 Następnie sprawdzamy strukturę naszych danych.
 
 ```{r struktura danych}
@@ -149,29 +140,8 @@ niespelnione <- as.data.frame(summary(wyniki))
 View(niespelnione)
 
 ```
+Wizualizujemy wyniki walidacji.
 
-<<<<<<< HEAD
-find_na(pozyczki)
-
-# Użycie hotdeck() bez tworzenia dodatkowych kolumn
-library(VIM)
-dane_czyste <- VIM::hotdeck(pozyczki)
-
-
-data_imputed <- hotdeck(pozyczki$Gender, imp_var = FALSE)
-data_imputed <- hotdeck(pozyczki$Married, imp_var = FALSE)
-
-
-# Sprawdzenie wyników
-print(data_imputed)
-
-#
-#znalazlo nam KOLUMNY, w których brakuje danych
-hotdeck(pozyczki$Gender)
-print(pozyczki)
-view(pozyczki)
-
-=======
 ```{r wizualizacja, warning=FALSE}
 cf <- confront(pozyczki, rules, key="Loan_ID")
 summary(cf)
@@ -183,8 +153,6 @@ barplot(cf, main="Wizualizacja błędów i braków danych")
 W przypadku zmiennej "Gender" znajduje się 13 braków danych, zmiennej "Married" - 3, zmiennej "Dependents" - 15, zmiennej "Self_Employed" - 32, zmiennej "LoanAmount" - 22, zmiennej "Loan_Amount_Term" - 14, a w przypadku zmiennej "Credit_History" znajduje się 50 braków danych.
 
 ### 2.3. Imputacja braków danych
-
-#imputacja testowe (nie wiem czy dziala - nie odpalałam, bo nie chce zepsuc danych) \# update: działa
 
 W celu uzupełnienia braków danych wykorzystujemy metodę imputacji. Dla zmiennych "Gender" i "Married" zastosujemy metodę imputacji dominantą.
 
@@ -224,7 +192,6 @@ pozyczki$Self_Employed <- hotdeck(pozyczki, variable = "Self_Employed", ord_var 
 
 pozyczki$Credit_History <- hotdeck(pozyczki, variable = "Credit_History", ord_var = "LoanAmount")$Credit_History
 
-
 ```
 
 Dla zmiennych numerycznych wykorzystujemy metodę imputacji medianą, ponieważ jest ona bardziej odporna na wartości odstające niż średnia.
@@ -243,7 +210,7 @@ plot(okres_pozyczki)
 
 ### Wizualizacje
 
-2.  Wykresy dwóch zmiennych ilościowych Dochód wnioskodawcy a kwota pożyczki
+Wykresy dwóch zmiennych ilościowych Dochód wnioskodawcy a kwota pożyczki
 
 ```{r}
 ggplot(pozyczki, aes(x = ApplicantIncome, y = LoanAmount)) +
