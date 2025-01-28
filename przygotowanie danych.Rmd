@@ -250,18 +250,24 @@ ggplot(pozyczki, aes(x = ApplicantIncome, y = LoanAmount, size = CoapplicantInco
 ```
 
 ```{r}
-medians <- pozyczki %>%
-  group_by(Property_Area) %>%
-  summarize(m = median(LoanAmount, na.rm = TRUE))
-
 ggplot(pozyczki, aes(x = Property_Area, y = LoanAmount)) +
   geom_boxplot(aes(fill = Property_Area), outlier.alpha = 0.25) +
-  geom_text(data = medians, aes(x = Property_Area, y = m, label = round(m, 2)), 
-            color = 'blue', hjust = -0.2) +
-  scale_fill_brewer(palette = 'Set3') +
+  stat_summary(
+    fun = median,
+    geom = "text",
+    aes(label = after_stat(y)),
+    vjust = -0.5,
+    color = "blue",
+    size = 3 
+  ) +
+  scale_fill_brewer(palette = "Set3") +
   theme_minimal() +
-  labs(title = 'Kwota pożyczki a obszar nieruchomości', x = 'Obszar nieruchomości', y = 'Kwota pożyczki') +
-  theme(legend.position = 'none')
+  labs(
+    title = "Kwota pożyczki a obszar nieruchomości",
+    x = "Obszar nieruchomości",
+    y = "Kwota pożyczki"
+  ) +
+  theme(legend.position = "none")
 ```
 
 Niezależnie od obszaru kwota pożyczki nie różni się znacząco.
@@ -292,24 +298,29 @@ ggarrange(density.p, stable.p, text.p,
           ncol = 1, nrow = 3,
           heights = c(1, 0.5, 0.3))
 ```
-```
-```{r}
-#testowanie statystyczne
-library(ggstatsplot)
+## Testowanie statystyczne
+
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+install.packages("ggstatsplot")
+library(ggstatsplot) #ładowanie potrzebnego pakietu
 
 ggpiestats(
   data = pozyczki,
   x = Loan_Status,
   y = Education
 )
+```
 #wykres ilustruje różnicę w statusie pożyczki (Loan_Status) w #dwóch grupach: Graduate i Not Graduate, przedstawioną w postaci #wykresów kołowych. Dodatkowo zawiera wyniki testów #statystycznych, które sprawdzają zależność między tymi zmiennymi.
 
 
+```{r}
 ggpiestats(
   data = pozyczki,
   x = Loan_Status,
   y = Gender
 )
+```
+
 #Ten wykres przedstawia różnice w decyzjach dotyczących pożyczki #(Loan_Status) w zależności od płci: Female i Male. Dodatkowo #zawiera wyniki testów statystycznych, które analizują zależność #między płcią a statusem pożyczki.
 #67% kobiet otrzymało pozytywną decyzję dotyczącą pożyczki, 33% kobiet otrzymało decyzję negatywną
 #wyniki testu statystycznego: wskazują na istotną zależność między statusem pożyczki a kategorią Loan_Status w grupie kobiet.
@@ -318,24 +329,32 @@ ggpiestats(
 #Porównanie obu grup za pomocą chi kwadrat: 0.63, co oznacza, że nie ma statystycznie istotnej zależności między płcią a decyzją o przyznaniu pożyczk.
 #wspolczynnik Cramera = 0.00 - wskazuje, że siła zależności jest zerowa
 
+```{r}
 #malzenstwo a kwota pozyczki
 ggbetweenstats(
 data=pozyczki,
 y=LoanAmount,
 x=Married
 )
+```
 
+
+
+```{r}
 #status pozyczki a kwota pozyczki
 ggbetweenstats(
 data=pozyczki,
 y=LoanAmount,
 x=Loan_Status
 )
+```
 
+
+```{r}
 #anova
 wyniki <-aov(LoanAmount~Married, data=pozyczki)
 summary(wyniki)
-
 ```
+
 
 
