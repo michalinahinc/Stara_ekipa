@@ -11,14 +11,6 @@ output:
     highlight: tango
 ---
 
-```{r setup}
-knitr::opts_chunk$set(
-	message = FALSE,
-	warning = FALSE,
-	library(rmdformats)
-)
-```
-
 ## 1. Wprowadzenie i cel projektu
 
 Celem niniejszego projektu jest opracowanie i wdrożenie systemu automatycznej oceny zdolności kredytowej klientów w czasie rzeczywistym. Projekt zakłada stworzenie modelu klasyfikacyjnego, który na podstawie danych podanych przez klienta podczas wypełniania wniosku online będzie w stanie precyzyjnie określić, czy dany klient kwalifikuje się do otrzymania pożyczki.
