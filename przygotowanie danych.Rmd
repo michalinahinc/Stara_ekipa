@@ -407,12 +407,14 @@ y=LoanAmount,
 x=Loan_Status
 )
 ```
+Na wykresie porównano kwoty pożyczek ("LoanAmount") między zaakceptowanymi (Y) i odrzuconymi (N) wnioskami. Średnie są podobne: 151,22 dla N i 144,29 dla Y. Test t-Studenta wykazał brak istotnej różnicy (p =0.37). Rozkłady w obu grupach są zbliżone, co wskazuje, że status pożyczki nie zależy istotnie od kwoty.
 
 ```{r}
 #anova
 wyniki <-aov(LoanAmount~Married, data=pozyczki)
 summary(wyniki)
 ```
+ANOVA pokazuje, że status małżeński ("Married") ma istotny wpływ na zmienną zależną (np. kwotę pożyczki), z bardzo wysokim poziomem istotności (F=14.45, p=0.000268). To oznacza, że różnice między grupami (żonaci vs nieżonaci) są statystycznie znaczące.
 
 ## 6. Narzędzie pomagające w podejmowaniu decyzji odnośnie przyznania pożyczki
 
