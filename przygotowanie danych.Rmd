@@ -256,18 +256,21 @@ pozyczki %>%
        y = 'Liczba osób w gospodarstwie domowym') +
   theme(legend.position = 'right')  # Ustawienie legendy
 ```
+Osoby pozostające w związku mają średnio więcej osób na utrzymaniu niż osoby nie będące w związku.
 
+Następnie przeanalizowałyśmy zależność pomiędzy kwotą pożyczki a dochodem wnioskodawców w zależności od statusu pożyczki.
 ```{r}
 if(!require('ggrepel')) install.packages('ggrepel')
 library(ggrepel)
 
-ggplot(pozyczki, aes(x = ApplicantIncome, y = LoanAmount, size = CoapplicantIncome, color = Loan_Status)) +
+ggplot(pozyczki, aes(x = TotalIncome, y = LoanAmount, size = TotalIncome, color = Loan_Status)) +
   geom_point(alpha = 0.6) +
   scale_color_manual(values = c('green', 'red')) +
   theme_minimal() +
   labs(title = 'Dochód a kwota pożyczki', x = 'Dochód wnioskodawcy', y = 'Kwota pożyczki') +
   theme(legend.position = 'right')
 ```
+Generalnie im wyższy dochód wnioskodawców, tym większa kwota pożyczki. Innymi słowy, im wyższy dochód, tym większa szansa na uzyskanie większej kwoty.
 
 ### 4.Analiza opisowa
 
@@ -328,6 +331,10 @@ W obu grupach występują pojedyncze przypadki bardzo wysokich kwot pożyczek, k
 
 ### 5.Testowanie statystyczne
 
+W tej części skupiłyśmy się na testowaniu statystycznym zależności między zmiennymi w naszym zbiorze danych. Wykorzystujemy do tego pakiet "ggstatsplot". 
+
+Poniższy wykres kołowy przedstawia zależność między statusem edukacyjnym a decyzją o przyznaniu kredytu.
+
 ```{r message=FALSE, warning=FALSE, paged.print=FALSE}
 install.packages("ggstatsplot")
 library(ggstatsplot) #ładowanie potrzebnego pakietu
@@ -339,9 +346,18 @@ ggpiestats(
 )
 ```
 
-Wykres kołowy przedstawia zależność między statusem edukacyjnym a decyzją o przyznaniu kredytu.
-Absolwenci (Graduate) częściej otrzymują kredyt (71%) niż nieabsolwenci (61%).
-Różnica jest istotna statystycznie (p = 0.03), ale jej siła jest niewielka (V-Cramer = 0.08).
+Sformułowałyśmy następujące hipotezy:
+
+Hipoteza zerowa (H0): Brak zależności między wykształceniem a otrzymaniem pożyczki.
+Hipoteza alternatywna (H1): Istnieje zależność między wykształceniem a otrzymaniem pożyczki. 
+
+Wyniki testu: wartość p dla testu chi-kwadrat wynosi 6.93e-20. 
+
+Interpretacja:
+
+Ze względu na niską wartość p-value odrzucamy hipotezę zerową i przyjmujemy hipotezę alternatywną. Oznacza to, że istnieje statystycznie istotny związek między poziomem wykształcenia a prawdopodobieństwem otrzymania pożyczki.Absolwenci (Graduate) częściej otrzymują kredyt (71%) niż nieabsolwenci (61%). Różnica jest istotna statystycznie, ale jej siła jest niewielka (V-Cramer = 0.08).
+
+W kolejnym kroku sprawdzamy zależność między płcią a decyzją o przyznaniu pożyczki.
 
 ```{r}
 ggpiestats(
@@ -350,12 +366,17 @@ ggpiestats(
   y = Gender
 )
 ```
+Podstawione hipotezy:
 
-Ten wykres przedstawia różnice w decyzjach dotyczących pożyczki (Loan_Status) w zależności od płci: Female i Male.
-Dodatkowo #zawiera wyniki testów statystycznych, które analizują zależność #między płcią a statusem pożyczki.
-67% kobiet otrzymało pozytywną decyzję dotyczącą pożyczki, 33% kobiet otrzymało decyzję negatywną #wyniki testu statystycznego: wskazują na istotną zależność między statusem pożyczki a kategorią Loan_Status w grupie kobiet.
-69% mężczyzn otrzymało pozytywną decyzję dotyczącą pożyczki, 31% mężczyzn otrzymało decyzję negatywną #wyniki testu statystycznego: wskazują na bardzo silną zależność w tej grupie.
-Porównanie obu grup za pomocą chi kwadrat: 0.63, co oznacza, że nie ma statystycznie istotnej zależności między płcią a decyzją o przyznaniu pożyczk.
+Hipoteza zerowa (H0): Nie ma istotnej różnicy w prawdopodobieństwie otrzymania pożyczki między kobietami a mężczyznami.
+Hipoteza alternatywna (H1): Istnieje istotna różnica w prawdopodobieństwie otrzymania pożyczki między kobietami a mężczyznami.
+
+Wyniki: wartość p wynosi 0.20, współczynnik V Cramera wynosi 0.00.
+
+Interpretacja: 
+
+Wartość p-value wskazuje na przyjęcie hipotezy zerowej. Stwierdzamy, że nie ma statystycznie istotnej różnicy w prawdopodobieństwie otrzymania pożyczki między kobietami a mężczyznami.
+
 wspolczynnik Cramera = 0.00 - wskazuje, że siła zależności jest zerowa
 
 ```{r}
@@ -367,13 +388,15 @@ x=Married
 )
 ```
 
-Wykres pokazuje różnicę w wysokości kwoty kredytu (LoanAmount) w zależności od statusu małżeńskiego (Married).
+Wykres pokazuje różnicę w wysokości kwoty kredytu w zależności od statusu małżeńskiego.
 No (n = 213): Osoby niezamężne/nieżonate.
-Yes (n = 401): Osoby zamężne/żonate Średnia kwota kredytu dla grupy No: 128.85.
-Średnia kwota kredytu dla grupy Yes: 154.73.
-Wynik p \< 0.05 wskazuje, że różnica między grupami jest istotna statystycznie.
+Yes (n = 401): Osoby zamężne/żonate Średnia kwota kredytu dla grupy "No": 128.85.
+Średnia kwota kredytu dla grupy "Yes": 154.73.
+
+Wynik p < 0.05 wskazuje, że różnica między grupami jest istotna statystycznie.
 Osoby zamężne/żonate biorą wyższe kwoty kredytu średnio niż osoby niezamężne/nieżonate.
 Rozkład kwot jest bardziej rozproszony w grupie zamężnych/żonatych.
+
 Wnioski: Status małżeński wpływa na wysokość zaciąganej kwoty kredytu, choć różnica ma niewielką siłę efektu.
 
 ```{r}
@@ -392,6 +415,10 @@ summary(wyniki)
 ```
 
 ## 6. Narzędzie pomagające w podejmowaniu decyzji odnośnie przyznania pożyczki
+
+Po przeprowadzeniu analizy danych pochodzących z naszego zbioru przeszłyśmy do budowy narzędzia, które pozwoli firmie zautomatyzować proces przyznawania decyzji o udzieleniu pożyczki na podstawie danych klienta.
+
+W ramach tego etapu zbudowano model logitowy, który na podstawie dostępnych danych o płci, stanie cywilnym, wykształceniu, wysokości dochodu, liczby osób na utrzymaniu, samozatrudnieniu, historii kredytowej, wysokości pożyczki i jej okresu spłaty pozwala oszacować prawdopodobieństwo przyznania pożyczki.
 
 ```{r}
 library(mfx)
@@ -427,7 +454,7 @@ model <- glm(Loan_Status ~ Gender + Married + Dependents + Education + Self_Empl
  pred_prob <- predict(model, newdata = x_individual, type = "response")
  pred_prob
 ```
-
+Dla przykładowego klienta z podanymi charakterystykami (mężczyzna, kawaler, jedna osoba na utrzymaniu, wykształcenie wyższe, samozatrudnienie, brak historii kredytowej, dochód: 7000, kwota pożyczki: 400, okres kredytowania 360 miesięcy, nieruchomość podmiejska) model oszacował prawdopodobieństwo otrzymania pożyczki na poziomie około 7,4%.
 
 
 ### 7.Podsumowanie i wnioski
