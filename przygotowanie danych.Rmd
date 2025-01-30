@@ -218,7 +218,9 @@ plot(okres_pozyczki)
 
 ```
 
-### 3.Wizualizacje
+## 3.Wizualizacje
+
+### 3.1. Dochód wnioskodawcy a kwota pożyczki
 
 Dodajemy nową kolumnę sumującą dochód wnioskodawcy i współwnioskodawcy w celu zbadania zależności między dochodem wnioskodawców a kwotą pożyczki.
 
@@ -242,6 +244,8 @@ Na podstawie powyższej wizualizacji można zaobserwować, że generalnie im wy�
 
 Można również zauważyć, że osoby z lepszą historią kredytową (ciemniejsze punkty) mają tendencję do zaciągania wyższych pożyczek przy tym samym poziomie dochodu.
 
+### 3.2. Stan cywilny a liczba osób w gospodarstwie domowym
+
 W kolejnym kroku sprawdzamy zależność między stanem cywilnym a liczbą osób w gospodarstwie domowym.
 
 ```{r}
@@ -258,6 +262,8 @@ pozyczki %>%
 ```
 Osoby pozostające w związku mają średnio więcej osób na utrzymaniu niż osoby nie będące w związku.
 
+### 3.3. Kwota pożyczki a obszar zamieszkania
+
 Następnie przeanalizowałyśmy zależność pomiędzy kwotą pożyczki a dochodem wnioskodawców w zależności od statusu pożyczki.
 ```{r}
 if(!require('ggrepel')) install.packages('ggrepel')
@@ -271,6 +277,30 @@ ggplot(pozyczki, aes(x = TotalIncome, y = LoanAmount, size = TotalIncome, color 
   theme(legend.position = 'right')
 ```
 Generalnie im wyższy dochód wnioskodawców, tym większa kwota pożyczki. Innymi słowy, im wyższy dochód, tym większa szansa na uzyskanie większej kwoty.
+
+### 3.4. Macierz korelacji
+
+Następnie sprawdzamy zależności między zmiennymi w naszym zbiorze danych za pomocą macierzy korelacji.
+
+```{r}
+library(corrplot)
+
+pozyczki_korelacja <- pozyczki %>%
+  mutate(across(where(is.character), as.factor)) %>%
+  mutate(across(where(is.factor), as.numeric))
+
+# Macierz korelacji
+cor_matrix <- cor(pozyczki_korelacja, use = "complete.obs")
+
+# Wizualizacja
+corrplot(cor_matrix, method = "color", type = "upper", order = "hclust",
+         tl.col = "black", tl.srt = 45)
+```
+Najsilniejsza korelacja występuje między TotalIncome a ApplicantIncome oraz CoapplicantIncome, co jest naturalne, ponieważ TotalIncome to ich suma.LoanAmount jest dodatnio skorelowany z dochodami, co sugeruje, że wyższe dochody przekładają się na wyższe kwoty pożyczki.
+
+Zmienna Credit_History wykazuje istotną korelację z innymi zmiennymi, co wskazuje, że historia kredytowa ma znaczenie w procesie przyznawania pożyczek.
+
+Zmienne, takie jak Married, Education czy Self_Employed, nie wykazują silnych korelacji z innymi zmiennymi, co sugeruje, że nie mają one bezpośredniego wpływu na kwotę pożyczki lub jej status.Podobnie w przypadku zmiennej Loan_Amount_Term.
 
 ### 4.Analiza opisowa
 
