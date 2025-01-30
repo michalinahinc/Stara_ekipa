@@ -19,7 +19,8 @@ editor_options:
 Celem niniejszego projektu jest opracowanie i wdrożenie systemu automatycznej oceny zdolności kredytowej klientów w czasie rzeczywistym.
 Projekt zakłada stworzenie modelu klasyfikacyjnego, który na podstawie danych podanych przez klienta podczas wypełniania wniosku online będzie w stanie precyzyjnie określić, czy dany klient kwalifikuje się do otrzymania pożyczki.
 
-System ten ma na celu nie tylko przyspieszenie procesu decyzyjnego, ale także zwiększenie jego trafności. Dzięki segmentacji klientów oraz identyfikacji cech charakterystycznych dla osób spełniających kryteria kredytowe, firma będzie mogła dostosować swoje oferty do konkretnych grup odbiorców.
+System ten ma na celu nie tylko przyspieszenie procesu decyzyjnego, ale także zwiększenie jego trafności.
+Dzięki segmentacji klientów oraz identyfikacji cech charakterystycznych dla osób spełniających kryteria kredytowe, firma będzie mogła dostosować swoje oferty do konkretnych grup odbiorców.
 
 Dane, na których pracujemy obejmują: płeć, stan cywilny,liczba osób na utrzymaniu, wykształcenie, informację czy wnioskodawca prowadzi działalność gospodarczą, jego dochód, dochód współwnioskodawcy, kwotę pożyczki, okres spłaty, historię kredytową, lokalizację nieruchomości i status przyznania pożyczki.
 Mają 614 wierszy i 13 kolumn.
@@ -260,11 +261,13 @@ pozyczki %>%
        y = 'Liczba osób w gospodarstwie domowym') +
   theme(legend.position = 'right')  # Ustawienie legendy
 ```
+
 Osoby pozostające w związku mają średnio więcej osób na utrzymaniu niż osoby nie będące w związku.
 
 ### 3.3. Kwota pożyczki a obszar zamieszkania
 
 Następnie przeanalizowałyśmy zależność pomiędzy kwotą pożyczki a dochodem wnioskodawców w zależności od statusu pożyczki.
+
 ```{r}
 if(!require('ggrepel')) install.packages('ggrepel')
 library(ggrepel)
@@ -276,7 +279,9 @@ ggplot(pozyczki, aes(x = TotalIncome, y = LoanAmount, size = TotalIncome, color 
   labs(title = 'Dochód a kwota pożyczki', x = 'Dochód wnioskodawcy', y = 'Kwota pożyczki') +
   theme(legend.position = 'right')
 ```
-Generalnie im wyższy dochód wnioskodawców, tym większa kwota pożyczki. Innymi słowy, im wyższy dochód, tym większa szansa na uzyskanie większej kwoty.
+
+Generalnie im wyższy dochód wnioskodawców, tym większa kwota pożyczki.
+Innymi słowy, im wyższy dochód, tym większa szansa na uzyskanie większej kwoty.
 
 ### 3.4. Macierz korelacji
 
@@ -296,6 +301,7 @@ cor_matrix <- cor(pozyczki_korelacja, use = "complete.obs")
 corrplot(cor_matrix, method = "color", type = "upper", order = "hclust",
          tl.col = "black", tl.srt = 45)
 ```
+
 Najsilniejsza korelacja występuje między TotalIncome a ApplicantIncome oraz CoapplicantIncome, co jest naturalne, ponieważ TotalIncome to ich suma.LoanAmount jest dodatnio skorelowany z dochodami, co sugeruje, że wyższe dochody przekładają się na wyższe kwoty pożyczki.
 
 Zmienna Credit_History wykazuje istotną korelację z innymi zmiennymi, co wskazuje, że historia kredytowa ma znaczenie w procesie przyznawania pożyczek.
@@ -306,7 +312,7 @@ Zmienne, takie jak Married, Education czy Self_Employed, nie wykazują silnych k
 
 Poniższy wykres przedstawia rozkład kwot pożyczek udzielanych w zależności od tego, czy dana nieruchomość znajduje się na obszarze wiejskim, podmiejskim czy miejskim.
 
-```{r histogram2, echo=FALSE}
+```{r}
 # Wykres gęstości
 density.p <- ggdensity(pozyczki, x = "LoanAmount", 
                        fill = "Property_Area", palette = "jco")+
@@ -361,11 +367,12 @@ W obu grupach występują pojedyncze przypadki bardzo wysokich kwot pożyczek, k
 
 ### 5.Testowanie statystyczne
 
-W tej części skupiłyśmy się na testowaniu statystycznym zależności między zmiennymi w naszym zbiorze danych. Wykorzystujemy do tego pakiet "ggstatsplot". 
+W tej części skupiłyśmy się na testowaniu statystycznym zależności między zmiennymi w naszym zbiorze danych.
+Wykorzystujemy do tego pakiet "ggstatsplot".
 
 Poniższy wykres kołowy przedstawia zależność między statusem edukacyjnym a decyzją o przyznaniu kredytu.
 
-```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+```{r}
 install.packages("ggstatsplot")
 library(ggstatsplot) #ładowanie potrzebnego pakietu
 
@@ -379,13 +386,15 @@ ggpiestats(
 Sformułowałyśmy następujące hipotezy:
 
 Hipoteza zerowa (H0): Brak zależności między wykształceniem a otrzymaniem pożyczki.
-Hipoteza alternatywna (H1): Istnieje zależność między wykształceniem a otrzymaniem pożyczki. 
+Hipoteza alternatywna (H1): Istnieje zależność między wykształceniem a otrzymaniem pożyczki.
 
-Wyniki testu: wartość p dla testu chi-kwadrat wynosi 6.93e-20. 
+Wyniki testu: wartość p dla testu chi-kwadrat wynosi 6.93e-20.
 
 Interpretacja:
 
-Ze względu na niską wartość p-value odrzucamy hipotezę zerową i przyjmujemy hipotezę alternatywną. Oznacza to, że istnieje statystycznie istotny związek między poziomem wykształcenia a prawdopodobieństwem otrzymania pożyczki.Absolwenci (Graduate) częściej otrzymują kredyt (71%) niż nieabsolwenci (61%). Różnica jest istotna statystycznie, ale jej siła jest niewielka (V-Cramer = 0.08).
+Ze względu na niską wartość p-value odrzucamy hipotezę zerową i przyjmujemy hipotezę alternatywną.
+Oznacza to, że istnieje statystycznie istotny związek między poziomem wykształcenia a prawdopodobieństwem otrzymania pożyczki.Absolwenci (Graduate) częściej otrzymują kredyt (71%) niż nieabsolwenci (61%).
+Różnica jest istotna statystycznie, ale jej siła jest niewielka (V-Cramer = 0.08).
 
 W kolejnym kroku sprawdzamy zależność między płcią a decyzją o przyznaniu pożyczki.
 
@@ -396,6 +405,7 @@ ggpiestats(
   y = Gender
 )
 ```
+
 Podstawione hipotezy:
 
 Hipoteza zerowa (H0): Nie ma istotnej różnicy w prawdopodobieństwie otrzymania pożyczki między kobietami a mężczyznami.
@@ -403,9 +413,10 @@ Hipoteza alternatywna (H1): Istnieje istotna różnica w prawdopodobieństwie ot
 
 Wyniki: wartość p wynosi 0.20, współczynnik V Cramera wynosi 0.00.
 
-Interpretacja: 
+Interpretacja:
 
-Wartość p-value wskazuje na przyjęcie hipotezy zerowej. Stwierdzamy, że nie ma statystycznie istotnej różnicy w prawdopodobieństwie otrzymania pożyczki między kobietami a mężczyznami.
+Wartość p-value wskazuje na przyjęcie hipotezy zerowej.
+Stwierdzamy, że nie ma statystycznie istotnej różnicy w prawdopodobieństwie otrzymania pożyczki między kobietami a mężczyznami.
 
 wspolczynnik Cramera = 0.00 - wskazuje, że siła zależności jest zerowa
 
@@ -423,7 +434,7 @@ No (n = 213): Osoby niezamężne/nieżonate.
 Yes (n = 401): Osoby zamężne/żonate Średnia kwota kredytu dla grupy "No": 128.85.
 Średnia kwota kredytu dla grupy "Yes": 154.73.
 
-Wynik p < 0.05 wskazuje, że różnica między grupami jest istotna statystycznie.
+Wynik p \< 0.05 wskazuje, że różnica między grupami jest istotna statystycznie.
 Osoby zamężne/żonate biorą wyższe kwoty kredytu średnio niż osoby niezamężne/nieżonate.
 Rozkład kwot jest bardziej rozproszony w grupie zamężnych/żonatych.
 
@@ -437,14 +448,20 @@ y=LoanAmount,
 x=Loan_Status
 )
 ```
-Na wykresie porównano kwoty pożyczek ("LoanAmount") między zaakceptowanymi (Y) i odrzuconymi (N) wnioskami. Średnie są podobne: 151,22 dla N i 144,29 dla Y. Test t-Studenta wykazał brak istotnej różnicy (p =0.37). Rozkłady w obu grupach są zbliżone, co wskazuje, że status pożyczki nie zależy istotnie od kwoty.
+
+Na wykresie porównano kwoty pożyczek ("LoanAmount") między zaakceptowanymi (Y) i odrzuconymi (N) wnioskami.
+Średnie są podobne: 151,22 dla N i 144,29 dla Y.
+Test t-Studenta wykazał brak istotnej różnicy (p =0.37).
+Rozkłady w obu grupach są zbliżone, co wskazuje, że status pożyczki nie zależy istotnie od kwoty.
 
 ```{r}
 #anova
 wyniki <-aov(LoanAmount~Married, data=pozyczki)
 summary(wyniki)
 ```
-ANOVA pokazuje, że status małżeński ("Married") ma istotny wpływ na zmienną zależną (np. kwotę pożyczki), z bardzo wysokim poziomem istotności (F=14.45, p=0.000268). To oznacza, że różnice między grupami (żonaci vs nieżonaci) są statystycznie znaczące.
+
+ANOVA pokazuje, że status małżeński ("Married") ma istotny wpływ na zmienną zależną (np. kwotę pożyczki), z bardzo wysokim poziomem istotności (F=14.45, p=0.000268).
+To oznacza, że różnice między grupami (żonaci vs nieżonaci) są statystycznie znaczące.
 
 ## 6. Narzędzie pomagające w podejmowaniu decyzji odnośnie przyznania pożyczki
 
@@ -486,12 +503,12 @@ model <- glm(Loan_Status ~ Gender + Married + Dependents + Education + Self_Empl
  pred_prob <- predict(model, newdata = x_individual, type = "response")
  pred_prob
 ```
-Dla przykładowego klienta z podanymi charakterystykami (mężczyzna, kawaler, jedna osoba na utrzymaniu, wykształcenie wyższe, samozatrudnienie, brak historii kredytowej, dochód: 7000, kwota pożyczki: 400, okres kredytowania 360 miesięcy, nieruchomość podmiejska) model oszacował prawdopodobieństwo otrzymania pożyczki na poziomie około 7,4%.
 
+Dla przykładowego klienta z podanymi charakterystykami (mężczyzna, kawaler, jedna osoba na utrzymaniu, wykształcenie wyższe, samozatrudnienie, brak historii kredytowej, dochód: 7000, kwota pożyczki: 400, okres kredytowania 360 miesięcy, nieruchomość podmiejska) model oszacował prawdopodobieństwo otrzymania pożyczki na poziomie około 7,4%.
 
 ### 7.Podsumowanie i wnioski
 
-##### 7.1.Podsumowanie wyników 
+##### 7.1.Podsumowanie wyników
 
 Wprowadzenie i analiza danych W projekcie przeanalizowano dane dotyczące wniosków kredytowych, obejmujące 614 obserwacji i 13 zmiennych.
 Dane zawierały informacje o płci, stanie cywilnym, liczbie osób na utrzymaniu, wykształceniu, działalności gospodarczej, dochodach, kwotach pożyczek, okresie spłaty oraz historii kredytowej.
